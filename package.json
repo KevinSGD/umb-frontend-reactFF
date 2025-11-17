@@ -2,7 +2,7 @@
   "name": "umb-frontend-react",
   "version": "1.0.0",
   "private": true,
-  "homepage": "https://KevinSGD.github.io/umb-frontend-reactFF",
+  "homepage": "https://kevinsgd.github.io/umb-frontend-reactFF",
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -16,17 +16,5 @@
     "build": "react-scripts build",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build"
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
   }
 }
