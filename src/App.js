@@ -1,7 +1,7 @@
 // src/App.js
 import React, { useEffect, useState } from "react";
 
-// 🔗 URL del backend en Render
+// URL del backend en Render
 const API_URL = "https://umb-web-taller.onrender.com";
 
 function App() {
@@ -9,15 +9,14 @@ function App() {
   const [titulo, setTitulo] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Obtener tareas del backend
   const fetchTareas = async () => {
     setLoading(true);
     try {
       const res = await fetch(`${API_URL}/index.php`);
       const data = await res.json();
       setTareas(data);
-    } catch (error) {
-      console.error("Error cargando tareas:", error);
+    } catch (err) {
+      console.error("Error cargando tareas:", err);
     } finally {
       setLoading(false);
     }
@@ -27,51 +26,36 @@ function App() {
     fetchTareas();
   }, []);
 
-  // Crear tarea
   const crear = async (e) => {
     e.preventDefault();
     if (!titulo.trim()) return;
 
-    try {
-      await fetch(`${API_URL}/index.php`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ titulo }),
-      });
+    await fetch(`${API_URL}/index.php`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ titulo }),
+    });
 
-      setTitulo("");
-      fetchTareas();
-    } catch (error) {
-      console.error("Error creando tarea:", error);
-    }
+    setTitulo("");
+    fetchTareas();
   };
 
-  // Marcar como completada / no completada
-  const toggleCompleta = async (tarea) => {
-    try {
-      await fetch(`${API_URL}/index.php?id=${tarea.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ completada: !tarea.completada }),
-      });
+  const toggleCompleta = async (t) => {
+    await fetch(`${API_URL}/index.php?id=${t.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ completada: !t.completada }),
+    });
 
-      fetchTareas();
-    } catch (error) {
-      console.error("Error actualizando tarea:", error);
-    }
+    fetchTareas();
   };
 
-  // Eliminar tarea
   const eliminar = async (id) => {
-    try {
-      await fetch(`${API_URL}/index.php?id=${id}`, {
-        method: "DELETE",
-      });
+    await fetch(`${API_URL}/index.php?id=${id}`, {
+      method: "DELETE",
+    });
 
-      fetchTareas();
-    } catch (error) {
-      console.error("Error eliminando tarea:", error);
-    }
+    fetchTareas();
   };
 
   return (
