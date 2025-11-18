@@ -1,141 +1,70 @@
-// src/App.js
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
+import "./App.css";
 
-// 🔗 URL del backend en Render
-const API_URL = "https://umb-web-taller.onrender.com";
-
-function App() {
+export default function App() {
   const [tareas, setTareas] = useState([]);
   const [titulo, setTitulo] = useState("");
-  
-  const [loading, setLoading] = useState(false);
 
-  // Obtener tareas del backend
-  const fetchTareas = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch(`${API_URL}/index.php`);
-      const data = await res.json();
-      setTareas(data);
-    } catch (error) {
-      console.error("Error cargando tareas:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  // Cargar desde LocalStorage
   useEffect(() => {
-    fetchTareas();
+    const stored = localStorage.getItem("tareas");
+    if (stored) setTareas(JSON.parse(stored));
   }, []);
 
-  // Crear tarea
-  const crear = async (e) => {
-    e.preventDefault();
+  // Guardar en LocalStorage
+  const guardarTareas = (nuevas) => {
+    setTareas(nuevas);
+    localStorage.setItem("tareas", JSON.stringify(nuevas));
+  };
+
+  // Agregar tarea
+  const agregarTarea = () => {
     if (!titulo.trim()) return;
-
-    try {
-      await fetch(`${API_URL}/index.php`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ titulo }),
-      });
-
-      setTitulo("");
-      fetchTareas();
-    } catch (error) {
-      console.error("Error creando tarea:", error);
-    }
+    const nueva = {
+      id: Date.now(),
+      titulo,
+      completada: false,
+    };
+    guardarTareas([...tareas, nueva]);
+    setTitulo("");
   };
 
-  // Marcar como completada / no completada
-  const toggleCompleta = async (tarea) => {
-    try {
-      await fetch(`${API_URL}/index.php?id=${tarea.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ completada: !tarea.completada }),
-      });
-
-      fetchTareas();
-    } catch (error) {
-      console.error("Error actualizando tarea:", error);
-    }
+  // Marcar como completada
+  const toggleTarea = (id) => {
+    const nuevas = tareas.map(t =>
+      t.id === id ? { ...t, completada: !t.completada } : t
+    );
+    guardarTareas(nuevas);
   };
 
-  // Eliminar tarea
-  const eliminar = async (id) => {
-    try {
-      await fetch(`${API_URL}/index.php?id=${id}`, {
-        method: "DELETE",
-      });
-
-      fetchTareas();
-    } catch (error) {
-      console.error("Error eliminando tarea:", error);
-    }
+  // Eliminar
+  const eliminarTarea = (id) => {
+    const nuevas = tareas.filter(t => t.id !== id);
+    guardarTareas(nuevas);
   };
 
   return (
-    <div
-      style={{
-        maxWidth: 720,
-        margin: "2rem auto",
-        padding: 20,
-        fontFamily: "Arial",
-      }}
-    >
-      <h1>Lista de Tareas</h1>
+    <div className="container">
+      <h1>Gestor de Tareas</h1>
 
-      <form onSubmit={crear} style={{ marginBottom: 20 }}>
+      <div className="form">
         <input
+          type="text"
+          placeholder="Escribe una tarea..."
           value={titulo}
-          onChange={(e) => setTitulo(e.target.value)}
-          placeholder="Nueva tarea..."
-          style={{ padding: 8, width: "70%" }}
+          onChange={e => setTitulo(e.target.value)}
         />
-        <button style={{ padding: 8, marginLeft: 8 }}>Agregar</button>
-      </form>
+        <button onClick={agregarTarea}>Agregar</button>
+      </div>
 
-      {loading ? (
-        <p>Cargando...</p>
-      ) : (
-        <ul style={{ listStyle: "none", padding: 0 }}>
-          {tareas.map((t) => (
-            <li
-              key={t.id}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                marginBottom: 8,
-              }}
-            >
-              <input
-                type="checkbox"
-                checked={!!t.completada}
-                onChange={() => toggleCompleta(t)}
-              />
-
-              <span
-                style={{
-                  marginLeft: 8,
-                  textDecoration: t.completada ? "line-through" : "none",
-                }}
-              >
-                {t.titulo}
-              </span>
-
-              <button
-                onClick={() => eliminar(t.id)}
-                style={{ marginLeft: "auto" }}
-              >
-                Eliminar
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
+      <ul className="lista">
+        {tareas.map(t => (
+          <li key={t.id} className={t.completada ? "done" : ""}>
+            <span onClick={() => toggleTarea(t.id)}>{t.titulo}</span>
+            <button className="delete" onClick={() => eliminarTarea(t.id)}>X</button>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
-
-export default App;
