@@ -2,7 +2,7 @@
   "name": "umb-frontend-react",
   "version": "1.0.0",
   "private": true,
-  "homepage": "https://KevinSGD.github.io/umb-frontend-reactFF",
+  "homepage": "https://kevinsgd.github.io/umb-frontend-reactFF",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -19,3 +19,4 @@
     "@vitejs/plugin-react": "^4.0.0"
   }
 }
+
