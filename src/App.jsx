@@ -5,66 +5,84 @@ export default function App() {
   const [tareas, setTareas] = useState([]);
   const [titulo, setTitulo] = useState("");
 
-  // Cargar desde LocalStorage
   useEffect(() => {
-    const stored = localStorage.getItem("tareas");
-    if (stored) setTareas(JSON.parse(stored));
+    const saved = localStorage.getItem("tareas");
+    if (saved) setTareas(JSON.parse(saved));
   }, []);
 
-  // Guardar en LocalStorage
-  const guardarTareas = (nuevas) => {
-    setTareas(nuevas);
-    localStorage.setItem("tareas", JSON.stringify(nuevas));
+  const guardar = (lista) => {
+    setTareas(lista);
+    localStorage.setItem("tareas", JSON.stringify(lista));
   };
 
-  // Agregar tarea
-  const agregarTarea = () => {
+  const agregar = () => {
     if (!titulo.trim()) return;
+
     const nueva = {
       id: Date.now(),
       titulo,
       completada: false,
     };
-    guardarTareas([...tareas, nueva]);
+
+    guardar([...tareas, nueva]);
     setTitulo("");
   };
 
-  // Marcar como completada
-  const toggleTarea = (id) => {
+  const toggle = (id) => {
     const nuevas = tareas.map(t =>
       t.id === id ? { ...t, completada: !t.completada } : t
     );
-    guardarTareas(nuevas);
+    guardar(nuevas);
   };
 
-  // Eliminar
-  const eliminarTarea = (id) => {
+  const eliminar = (id) => {
     const nuevas = tareas.filter(t => t.id !== id);
-    guardarTareas(nuevas);
+    guardar(nuevas);
   };
+
+  const completadas = tareas.filter(t => t.completada).length;
+  const progreso = tareas.length > 0 ? (completadas / tareas.length) * 100 : 0;
 
   return (
-    <div className="container">
-      <h1>Gestor de Tareas</h1>
+    <div className="app-wrapper">
+      <div className="container">
+        <h1 className="title">Gestor de Tareas</h1>
 
-      <div className="form">
-        <input
-          type="text"
-          placeholder="Escribe una tarea..."
-          value={titulo}
-          onChange={e => setTitulo(e.target.value)}
-        />
-        <button onClick={agregarTarea}>Agregar</button>
+        {/* Progreso */}
+        <div className="progress-box">
+          <p>
+            {completadas} completadas / {tareas.length} totales
+          </p>
+          <div className="progress-bar">
+            <div className="progress" style={{ width: `${progreso}%` }}></div>
+          </div>
+        </div>
+
+        {/* Formulario */}
+        <div className="form">
+          <input
+            type="text"
+            placeholder="Escribe una nueva tarea..."
+            value={titulo}
+            onChange={e => setTitulo(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && agregar()}
+          />
+          <button onClick={agregar}>Agregar</button>
+        </div>
+
+        {/* Lista */}
+        <ul className="lista">
+          {tareas.map(t => (
+            <li key={t.id} className={t.completada ? "done tarea" : "tarea"}>
+              <span onClick={() => toggle(t.id)}>{t.titulo}</span>
+              <button className="delete" onClick={() => eliminar(t.id)}>✕</button>
+            </li>
+          ))}
+        </ul>
+
+        {/* Si no hay tareas */}
+        {tareas.length === 0 && <p className="no-tasks">No hay tareas aún 😄</p>}
       </div>
-
-      <ul className="lista">
-        {tareas.map(t => (
-          <li key={t.id} className={t.completada ? "done" : ""}>
-            <span onClick={() => toggleTarea(t.id)}>{t.titulo}</span>
-            <button className="delete" onClick={() => eliminarTarea(t.id)}>X</button>
-          </li>
-        ))}
-      </ul>
     </div>
   );
 }
