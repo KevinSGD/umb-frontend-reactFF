@@ -1,22 +1,23 @@
 // src/App.js
 import React, { useEffect, useState } from "react";
 
-const API_BASE =
-  process.env.REACT_APP_API_URL || "https://umb-web-taller.onrender.com";
+// 🔗 URL del backend en Render
+const API_URL = "https://umb-web-taller.onrender.com";
 
 function App() {
   const [tareas, setTareas] = useState([]);
   const [titulo, setTitulo] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Obtener tareas del backend
   const fetchTareas = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/index.php`);
+      const res = await fetch(`${API_URL}/index.php`);
       const data = await res.json();
       setTareas(data);
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error("Error cargando tareas:", error);
     } finally {
       setLoading(false);
     }
@@ -26,30 +27,51 @@ function App() {
     fetchTareas();
   }, []);
 
+  // Crear tarea
   const crear = async (e) => {
     e.preventDefault();
     if (!titulo.trim()) return;
-    await fetch(`${API_BASE}/index.php`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ titulo }),
-    });
-    setTitulo("");
-    fetchTareas();
+
+    try {
+      await fetch(`${API_URL}/index.php`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ titulo }),
+      });
+
+      setTitulo("");
+      fetchTareas();
+    } catch (error) {
+      console.error("Error creando tarea:", error);
+    }
   };
 
-  const toggleCompleta = async (t) => {
-    await fetch(`${API_BASE}/index.php?id=${t.id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ completada: !t.completada }),
-    });
-    fetchTareas();
+  // Marcar como completada / no completada
+  const toggleCompleta = async (tarea) => {
+    try {
+      await fetch(`${API_URL}/index.php?id=${tarea.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ completada: !tarea.completada }),
+      });
+
+      fetchTareas();
+    } catch (error) {
+      console.error("Error actualizando tarea:", error);
+    }
   };
 
+  // Eliminar tarea
   const eliminar = async (id) => {
-    await fetch(`${API_BASE}/index.php?id=${id}`, { method: "DELETE" });
-    fetchTareas();
+    try {
+      await fetch(`${API_URL}/index.php?id=${id}`, {
+        method: "DELETE",
+      });
+
+      fetchTareas();
+    } catch (error) {
+      console.error("Error eliminando tarea:", error);
+    }
   };
 
   return (
@@ -62,6 +84,7 @@ function App() {
       }}
     >
       <h1>Lista de Tareas</h1>
+
       <form onSubmit={crear} style={{ marginBottom: 20 }}>
         <input
           value={titulo}
@@ -79,13 +102,18 @@ function App() {
           {tareas.map((t) => (
             <li
               key={t.id}
-              style={{ display: "flex", alignItems: "center", marginBottom: 8 }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                marginBottom: 8,
+              }}
             >
               <input
                 type="checkbox"
                 checked={!!t.completada}
                 onChange={() => toggleCompleta(t)}
               />
+
               <span
                 style={{
                   marginLeft: 8,
@@ -94,6 +122,7 @@ function App() {
               >
                 {t.titulo}
               </span>
+
               <button
                 onClick={() => eliminar(t.id)}
                 style={{ marginLeft: "auto" }}
