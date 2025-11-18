@@ -2,11 +2,10 @@
   "name": "umb-frontend-react",
   "version": "1.0.0",
   "private": true,
-  "homepage": "https://KevinSDG.github.io/umb-frontend-react",
+  "homepage": "https://KevinSGD.github.io/umb-frontend-reactFF",
   "dependencies": {
     "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-scripts": "5.0.1"
+    "react-dom": "^18.2.0"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -25,5 +24,10 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^5.1.1",
+    "gh-pages": "^6.3.0",
+    "vite": "^7.2.2"
   }
 }
