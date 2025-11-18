@@ -16,8 +16,8 @@ function App() {
       const res = await fetch(`${API_URL}/index.php`);
       const data = await res.json();
       setTareas(data);
-    } catch (err) {
-      console.error("Error cargando tareas:", err);
+    } catch (error) {
+      console.error("Error cargando tareas:", error);
     } finally {
       setLoading(false);
     }
@@ -32,34 +32,46 @@ function App() {
     e.preventDefault();
     if (!titulo.trim()) return;
 
-    await fetch(`${API_URL}/index.php`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ titulo }),
-    });
+    try {
+      await fetch(`${API_URL}/index.php`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ titulo }),
+      });
 
-    setTitulo("");
-    fetchTareas();
+      setTitulo("");
+      fetchTareas();
+    } catch (error) {
+      console.error("Error creando tarea:", error);
+    }
   };
 
-  // Marcar completada
-  const toggleCompleta = async (t) => {
-    await fetch(`${API_URL}/index.php?id=${t.id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ completada: !t.completada }),
-    });
+  // Marcar como completada / no completada
+  const toggleCompleta = async (tarea) => {
+    try {
+      await fetch(`${API_URL}/index.php?id=${tarea.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ completada: !tarea.completada }),
+      });
 
-    fetchTareas();
+      fetchTareas();
+    } catch (error) {
+      console.error("Error actualizando tarea:", error);
+    }
   };
 
   // Eliminar tarea
   const eliminar = async (id) => {
-    await fetch(`${API_URL}/index.php?id=${id}`, {
-      method: "DELETE",
-    });
+    try {
+      await fetch(`${API_URL}/index.php?id=${id}`, {
+        method: "DELETE",
+      });
 
-    fetchTareas();
+      fetchTareas();
+    } catch (error) {
+      console.error("Error eliminando tarea:", error);
+    }
   };
 
   return (
